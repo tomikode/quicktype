@@ -4,11 +4,6 @@ import initWords from "../public/words.json";
 export default function Home() {
 	const allowedLetters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+[];',./{}:"<>?\\| `;
 
-	const [words, setWords] = useState([]);
-	const [cursorPos, setCursorPos] = useState(0);
-	const typedRef = useRef("");
-	const onceRef = useRef(0);
-
 	const selectWord = () => {
 		const random = Math.floor(Math.random() * 10);
 		return Array.from(initWords[random]);
@@ -17,13 +12,23 @@ export default function Home() {
 	const selectWords = () => {
 		let genWords = [];
 		for (let i = 0; i < 2; i++) {
-			genWords.push(selectWord());
+			let newWord = selectWord();
+			genWords.push(newWord);
 		}
 		return Array.from(genWords);
 	};
 
+	const words = useRef(selectWords());
+	const [screen, setScreen] = useState([]);
+	const [cursorPos, setCursorPos] = useState(0);
+	const screenRef = useRef([]);
+	let letterPos = 0;
+	let wordPos = 0;
+	let typed = "";
+	const onceRef = useRef(0);
+
 	const keydown = (e) => {
-		if (e.key === "Backspace" && cursorPos === 0) {
+		if (e.key === "Backspace" && cursorPos === 0 && wordPos === 0) {
 			return;
 		} else if (e.key === "Backspace" && e.ctrlKey) {
 			ctrlBackspace();
@@ -31,8 +36,10 @@ export default function Home() {
 			backspace();
 		} else {
 			if (!allowedLetters.includes(e.key)) return;
-			else if (e.key === words[cursorPos]) {
+			else if (e.key === words.current[wordPos][letterPos]) {
 				inputRight(e.key);
+			} else if (e.key === " ") {
+				inputSpace();
 			} else {
 				inputWrong(e.key);
 			}
@@ -45,10 +52,7 @@ export default function Home() {
 	};
 
 	const ctrlBackspace = () => {
-		while (
-			typedRef.current.length > 0 &&
-			words[typedRef.current.length - 1] !== " "
-		) {
+		while (typed.length > 0 && words[typed.length - 1] !== " ") {
 			backspace();
 		}
 	};
@@ -60,68 +64,92 @@ export default function Home() {
 	//possibly having space as part of the word
 	//keeping track of where cursor is within word and what word its on
 
+	//work on new typing and backspace
+
+	//check if regular variables can work to replace state or something
+	//new backspace and typing, and clean up code
+
 	const backspace = () => {
-		let phrase = document.getElementsByClassName("phrase")[0]
-
-		let current 
-		if (current.className === "space") {
-		} else if (current.className === "wrongspace") {
-			current.innerHTML = "";
-			current.className = "space";
-		} else current.className = "letter";
-		typedRef.current = typedRef.current.slice(0, -1);
-
-		let cursor = document.getElementsByClassName("cursor")[0];
-		let pos = 32 * (cursorPos - 1);
-		cursor.style.left = `${pos}px`;
-		setCursorPos(cursorPos--);
+		// let phrase = document.getElementsByClassName("phrase")[0]
+		// let current
+		// if (current.className === "space") {
+		// } else if (current.className === "wrongspace") {
+		// 	current.innerHTML = "";
+		// 	current.className = "space";
+		// } else current.className = "letter";
+		// typed = typed.slice(0, -1);
+		// let cursor = document.getElementsByClassName("cursor")[0];
+		// let pos = 32 * (cursorPos - 1);
+		// cursor.style.left = `${pos}px`;
+		// setCursorPos(cursorPos--);
 	};
 
 	const inputWrong = (key) => {
-		let current =
-			document.getElementsByClassName("word")[0].childNodes[cursorPos];
-		if (current.className === "space") {
-			current.innerHTML = key;
-			current.className = "wrongspace";
-		} else current.className = "wrong";
-		typedRef.current = typedRef.current + key;
+		let phrase = document.getElementsByClassName("phrase")[0];
+		let letter = phrase.childNodes[wordPos].childNodes[letterPos];
+
+		typed += key;
+		if (!letter) {
+			screenRef.current[wordPos].push(key);
+			console.log(screenRef.current)
+			console.log(words.current)
+			setScreen(screenRef.current);
+			letterPos++;
+		} else {
+			letter = phrase.childNodes[wordPos].childNodes[letterPos];
+			letter.className = "wrong";
+			letterPos++;
+		}
+
+		// let current =
+		// 	document.getElementsByClassName("word")[0].childNodes[cursorPos];
+		// if (current.className === "space") {
+		// 	current.innerHTML = key;
+		// 	current.className = "wrongspace";
+		// } else current.className = "wrong";
+		// typed = typed + key;
 	};
 
 	const inputRight = (key) => {
-		let current =
-			document.getElementsByClassName("word")[0].childNodes[cursorPos];
-		if (current.className === "space") {
-		} else current.className = "right";
-		typedRef.current = typedRef.current + key;
+		let phrase = document.getElementsByClassName("phrase")[0];
+		let letter = phrase.childNodes[wordPos].childNodes[letterPos];
+		letter.className = "right";
+		letterPos++;
 	};
 
 	useEffect(() => {
-		setWords(selectWords);
+		setScreen(words.current.map(word => word.map(letter => letter)));
 	}, []);
 
 	useEffect(() => {
-		if (onceRef.current) {
-			document.addEventListener("keydown", keydown, { passive: false });
+		if (onceRef.current === 1) {
+			screenRef.current = screen;
+			document.addEventListener("keydown", keydown);
 		}
 		onceRef.current++;
-	}, [words]);
+	}, [screen]);
 
 	return (
 		<div className="container">
 			<div className="cursor" style={{ left: "0px" }} />
 			<div className="phrase">
-				{words
-					? words.map((word, index) => {
-						console.log(word)
+				{screen
+					? screen.map((word, i) => {
 							return (
-								<div key={index} className="word">
-									{word.map((letter, index) => {
+								<div key={i} className="word">
+									{word.map((letter, x) => {	
+										if (x >= words.current[i].length)
+											return (
+												<div key={x} className="wrong">
+													{letter}
+												</div>
+											);
 										return (
-											<div key={index} className="letter">
+											<div key={x} className="letter">
 												{letter}
 											</div>
 										);
-									})}<div className="space" />
+									})}
 								</div>
 							);
 					  })

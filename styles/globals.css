@@ -22,6 +22,7 @@ a {
 
 .word {
   display: inline-block;
+  margin-right: 32.02px;
 }
 
 .letter {
@@ -33,6 +34,7 @@ a {
 .space {
   display: inline-block;
   width: 32.02px;
+  background-color: red;
 }
 
 .wrongspace {
