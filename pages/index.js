@@ -4,11 +4,13 @@ import initWords from "../public/words.json";
 export default function Home() {
 	const allowedLetters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+[];',./{}:"<>?\\| `;
 
+	//select a random word
 	const selectWord = () => {
 		const random = Math.floor(Math.random() * 10);
 		return Array.from(initWords[random]);
 	};
 
+	//select random words, many times and return to screen state
 	const selectWords = () => {
 		let genWords = [];
 		for (let i = 0; i < 2; i++) {
@@ -18,19 +20,41 @@ export default function Home() {
 		return Array.from(genWords);
 	};
 
+	//variables to track typed letters, whats on screen and original words to type, positions
 	const words = useRef(selectWords());
 	const [screen, setScreen] = useState([]);
 	const [cursorPos, setCursorPos] = useState(0);
-	const screenRef = useRef([]);
+	const screenRef = useRef(screen);
 	let letterPos = 0;
 	let wordPos = 0;
-	let typed = "";
+	const typed = useRef([[]]);
 	const onceRef = useRef(0);
 
+	//ref for screen state used for event listeners to mutate and access state
+	const setScreenState = (data) => {
+		screenRef.current = data;
+		setScreen(data);
+	};
+
+	//move div cursor forward
+	const forwardCursor = () => {
+		let cursor = document.getElementsByClassName("cursor")[0];
+		let pos = 32 * (cursorPos + 1);
+		cursor.style.left = `${pos}px`;
+		setCursorPos(cursorPos++);
+	};
+
+	//mvoe div cursor backward
+	const backwardCursor = () => {
+		let cursor = document.getElementsByClassName("cursor")[0];
+		let pos = 32 * (cursorPos - 1);
+		cursor.style.left = `${pos}px`;
+		setCursorPos(cursorPos--);
+	};
+
+	//keydown event listener controller
 	const keydown = (e) => {
-		if (e.key === "Backspace" && cursorPos === 0 && wordPos === 0) {
-			return;
-		} else if (e.key === "Backspace" && e.ctrlKey) {
+		if (e.key === "Backspace" && e.ctrlKey) {
 			ctrlBackspace();
 		} else if (e.key === "Backspace") {
 			backspace();
@@ -43,87 +67,113 @@ export default function Home() {
 			} else {
 				inputWrong(e.key);
 			}
-
-			let cursor = document.getElementsByClassName("cursor")[0];
-			let pos = 32 * (cursorPos + 1);
-			cursor.style.left = `${pos}px`;
-			setCursorPos(cursorPos++);
 		}
 	};
 
+	//Ctrl key + backspace key, delete entire previous word
 	const ctrlBackspace = () => {
-		while (typed.length > 0 && words[typed.length - 1] !== " ") {
+		if (letterPos === 0) backspace();
+		for (let i = typed.current[wordPos].length; i >= 1; i--) {
+			typed.current[wordPos].pop();
 			backspace();
 		}
 	};
 
-	//maybe adding letter after words, detect when space is used and jump to next work, like monkeytype?
-	//lock correctly written words
-	//longer sentences, spanning lines downwards, cursor hops down line
-	//minimum width of container phrase div
-	//possibly having space as part of the word
-	//keeping track of where cursor is within word and what word its on
-
 	//work on new typing and backspace
 
 	//check if regular variables can work to replace state or something
-	//new backspace and typing, and clean up code
+	//clean up code
+	//allow backspace through spaces
+	//test hardcore
+	//multiple lines cursor
+	//lots of words
+	//some words hidden
 
+	//backspace key controller, within word, first letter, nothing typed
 	const backspace = () => {
-		// let phrase = document.getElementsByClassName("phrase")[0]
-		// let current
-		// if (current.className === "space") {
-		// } else if (current.className === "wrongspace") {
-		// 	current.innerHTML = "";
-		// 	current.className = "space";
-		// } else current.className = "letter";
-		// typed = typed.slice(0, -1);
-		// let cursor = document.getElementsByClassName("cursor")[0];
-		// let pos = 32 * (cursorPos - 1);
-		// cursor.style.left = `${pos}px`;
-		// setCursorPos(cursorPos--);
+		letterPos--;
+		let phrase = document.getElementsByClassName("phrase")[0];
+		let letter = phrase.childNodes[wordPos].childNodes[letterPos];
+		if (screenRef.current[wordPos].length > words.current[wordPos].length) {
+			let update = screenRef.current.map((word) =>
+				word.map((letter) => letter)
+			);
+			update[wordPos].pop();
+			setScreenState(update);
+		} else if (letterPos === -1 && wordPos > 0) {
+			backwardCursor();
+			wordPos--;
+			letterPos = screenRef.current[wordPos].length;
+			return;
+		} else if (letterPos === -1 && wordPos === 0) {
+			letterPos = 0;
+			return;
+		} else {
+			letter.className = "letter";
+		}
+		typed.current[wordPos].pop();
+		backwardCursor();
 	};
 
+	//input space, hop to new word, regardless of current word progress
+	const inputSpace = () => {
+		let cur = typed.current[wordPos].length;
+		let needed = words.current[wordPos].length;
+		if (cur > needed) {
+			forwardCursor();
+		} else {
+			const dif = needed - cur + 1;
+			if (cur === 0) return;
+			for (let i = 0; i < dif; i++) {
+				forwardCursor();
+			}
+		}
+		wordPos++;
+		if (!typed.current[wordPos]) typed.current.push([]);
+		letterPos = 0;
+	};
+
+	//input wrong key, make correct letter red, add letters onto end if too many letters for word
 	const inputWrong = (key) => {
 		let phrase = document.getElementsByClassName("phrase")[0];
 		let letter = phrase.childNodes[wordPos].childNodes[letterPos];
-
-		typed += key;
-		if (!letter) {
+		if (
+			screenRef.current[wordPos].length >
+			words.current[wordPos].length + 10
+		) {
+			return;
+		} else if (!letter) {
 			screenRef.current[wordPos].push(key);
-			console.log(screenRef.current)
-			console.log(words.current)
 			setScreen(screenRef.current);
-			letterPos++;
 		} else {
 			letter = phrase.childNodes[wordPos].childNodes[letterPos];
 			letter.className = "wrong";
-			letterPos++;
 		}
-
-		// let current =
-		// 	document.getElementsByClassName("word")[0].childNodes[cursorPos];
-		// if (current.className === "space") {
-		// 	current.innerHTML = key;
-		// 	current.className = "wrongspace";
-		// } else current.className = "wrong";
-		// typed = typed + key;
+		typed.current[wordPos].push(key);
+		letterPos++;
+		forwardCursor();
 	};
 
+	//input correct key, make letter green
 	const inputRight = (key) => {
 		let phrase = document.getElementsByClassName("phrase")[0];
 		let letter = phrase.childNodes[wordPos].childNodes[letterPos];
+		typed.current[wordPos].push(key);
 		letter.className = "right";
 		letterPos++;
+		forwardCursor();
 	};
 
+	//set screen to randomly selected words
 	useEffect(() => {
-		setScreen(words.current.map(word => word.map(letter => letter)));
+		setScreenState(
+			words.current.map((word) => word.map((letter) => letter))
+		);
 	}, []);
 
+	//create event listener once, avoid doubles
 	useEffect(() => {
 		if (onceRef.current === 1) {
-			screenRef.current = screen;
 			document.addEventListener("keydown", keydown);
 		}
 		onceRef.current++;
@@ -137,7 +187,7 @@ export default function Home() {
 					? screen.map((word, i) => {
 							return (
 								<div key={i} className="word">
-									{word.map((letter, x) => {	
+									{word.map((letter, x) => {
 										if (x >= words.current[i].length)
 											return (
 												<div key={x} className="wrong">
