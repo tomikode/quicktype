@@ -67,9 +67,15 @@ a {
   height: 100vh;
 }
 
+.curPos {
+  display: inline-block;
+}
+
 .cursor {
-  border: 2px solid red;
-  height: 100px;
-  position: relative;
   z-index: 1;
+  height: 100px;
+  border: 2px solid red;
+  position: absolute;
+  left: 0px;
+  transition: left 0.1s, top 0.1s;
 }
