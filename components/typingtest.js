@@ -13,7 +13,7 @@ export default function TypingTest() {
 	//select random words, many times and return to screen state
 	const selectWords = () => {
 		let genWords = [];
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < 6; i++) {
 			let newWord = selectWord();
 			genWords.push(newWord);
 		}
@@ -23,7 +23,6 @@ export default function TypingTest() {
 	//variables to track typed letters, whats on screen and original words to type, positions
 	const words = useRef(selectWords());
 	const [screen, setScreen] = useState([]);
-	const [cursorPos, setCursorPos] = useState(0);
 	const screenRef = useRef(screen);
 	let letterPos = 0;
 	let wordPos = 0;
@@ -40,20 +39,13 @@ export default function TypingTest() {
 		typedRef.current = data;
 		setTyped(data);
 	};
-	//move div cursor forward
-	const forwardCursor = () => {
-		let copy = [...screenRef.current];
-		let cursor = copy[wordPos].splice(letterPos - 1, 1);
-		copy[wordPos].splice(letterPos, 0, cursor[0]);
-		setScreenState(copy);
-	};
 
-	//mvoe div cursor backward
-	const backwardCursor = () => {
-		let cursor = document.getElementsByClassName("cursor")[0];
-		let pos = 32 * (cursorPos - 1);
-		cursor.style.left = `${pos}px`;
-		setCursorPos(cursorPos--);
+	//move div cursor forward
+	const forwardCursor = (oldLetter, oldWord, newLetter, newWord) => {
+		let copy = [...screenRef.current];
+		let cursorChar = copy[oldWord].splice(oldLetter, 1);
+		copy[newWord].splice(newLetter, 0, cursorChar[0]);
+		setScreenState(copy);
 	};
 
 	//keydown event listener controller
@@ -76,91 +68,86 @@ export default function TypingTest() {
 
 	//Ctrl key + backspace key, delete entire previous word
 	const ctrlBackspace = () => {
-		// if (letterPos === 0) backspace();
-		// for (let i = typed.current[wordPos].length; i >= 1; i--) {
-		// 	typed.current[wordPos].pop();
-		// 	backspace();
-		// }
+		if (wordPos === 0 && letterPos === 0) return;
+		let newWord = wordPos;
+		if (letterPos > words.current[wordPos].length) {
+			let clone = [...screenRef.current];
+			clone[wordPos] = ["║", ...words.current[wordPos]];
+			setScreenState(clone);
+		} else {
+			if (letterPos === 0) {
+				newWord = wordPos - 1;
+			} 
+			forwardCursor(letterPos, wordPos, 0, newWord)
+		}
+		let clone = [...typedRef.current];
+		clone[newWord] = [];
+		setTypedState(clone);
+		letterPos = 0;
+		wordPos = newWord;
 	};
 
-	//work on new typing and backspace
-
-	//check if regular variables can work to replace state or something
-	//clean up code
-	//allow backspace through spaces
-	//test hardcore
-	//multiple lines cursor
-	//lots of words
-	//some words hidden
+	//ctrl backspace and spacebar bug currently,
+	//fixed rendering classes for letters
 
 	//backspace key controller, within word, first letter, nothing typed
 	const backspace = () => {
-		// letterPos--;
-		// let phrase = document.getElementsByClassName("phrase")[0];
-		// let letter = phrase.childNodes[wordPos].childNodes[letterPos];
-		// if (screenRef.current[wordPos].length > words.current[wordPos].length) {
-		// 	let update = screenRef.current.map((word) =>
-		// 		word.map((letter) => letter)
-		// 	);
-		// 	update[wordPos].pop();
-		// 	setScreenState(update);
-		// } else if (letterPos === -1 && wordPos > 0) {
-		// 	backwardCursor();
-		// 	wordPos--;
-		// 	letterPos = screenRef.current[wordPos].length;
-		// 	return;
-		// } else if (letterPos === -1 && wordPos === 0) {
-		// 	letterPos = 0;
-		// 	return;
-		// } else {
-		// 	letter.className = "letter";
-		// }
-		// typed.current[wordPos].pop();
-		// backwardCursor();
+		if (wordPos === 0 && letterPos === 0) return;
+		if (letterPos > 0) {
+			let clone = [...typedRef.current];
+			clone[wordPos].pop();
+			setTypedState(clone);
+			forwardCursor(letterPos, wordPos, letterPos - 1, wordPos);
+			if (letterPos > words.current[wordPos].length) {
+				clone = [...screenRef.current];
+				clone[wordPos].pop();
+				setScreenState(clone);
+			}
+			letterPos--;
+		} else {
+			let newLetterPos = typedRef.current[wordPos - 1].length;
+			forwardCursor(letterPos, wordPos, newLetterPos, wordPos - 1);
+			letterPos = newLetterPos;
+			wordPos--;
+		}
 	};
 
 	//input space, hop to new word, regardless of current word progress
 	const inputSpace = () => {
-		// let cur = typed.current[wordPos].length;
-		// let needed = words.current[wordPos].length;
-		// if (cur > needed) {
-		// 	forwardCursor();
-		// } else {
-		// 	const dif = needed - cur + 1;
-		// 	if (cur === 0) return;
-		// 	for (let i = 0; i < dif; i++) {
-		// 		forwardCursor();
-		// 	}
-		// }
-		// wordPos++;
-		// if (!typed.current[wordPos]) typed.current.push([]);
-		// letterPos = 0;
+		if (wordPos + 1 >= words.current.length) return;
+		wordPos++;
+		if (!typedRef.current[wordPos]) {
+			let clone = [...typedRef.current];
+			clone.push([]);
+			setTypedState(clone);
+		}
+		forwardCursor(letterPos, wordPos - 1, 0, wordPos);
+		letterPos = 0;
 	};
 
 	//input wrong key, make correct letter red, add letters onto end if too many letters for word
 	const inputWrong = (key) => {
+		const length = words.current[wordPos].length;
+		if (letterPos >= length + 10) return;
 		let clone = [...typedRef.current];
 		clone[wordPos].push(key);
 		setTypedState(clone);
-        const length = words.current[wordPos].length
-        if (letterPos >= length + 10) return
-		else if (letterPos >= length) {
+		if (letterPos >= length) {
 			clone = [...screenRef.current];
 			clone[wordPos].push(key);
 			setScreenState(clone);
 		}
 		letterPos++;
-		forwardCursor();
+		forwardCursor(letterPos - 1, wordPos, letterPos, wordPos);
 	};
 
 	//input correct key, make letter green
-
 	const inputRight = (key) => {
 		letterPos++;
 		let clone = [...typedRef.current];
 		clone[wordPos].push(key);
 		setTypedState(clone);
-		forwardCursor();
+		forwardCursor(letterPos - 1, wordPos, letterPos, wordPos);
 	};
 
 	//set screen to randomly selected words
@@ -174,22 +161,23 @@ export default function TypingTest() {
 	}, []);
 
 	const setCursor = () => {
-		const curPos = document.getElementsByClassName("curPos")[0];
-		const pos = curPos.getBoundingClientRect();
-        console.log(pos)
+		const pos = document
+			.getElementsByClassName("curPos")[0]
+			.getBoundingClientRect();
+		const phrasePos = document
+			.getElementsByClassName("phrase")[0]
+			.getBoundingClientRect();
 		const cursor = document.getElementsByClassName("cursor")[0];
-		cursor.style.left = `${pos.left}px`;
-		cursor.style.top = `${pos.top - 50}px`;
+		cursor.style.left = `${pos.left - phrasePos.left}px`;
+		cursor.style.top = `${pos.top - phrasePos.top}px`;
 	};
 
 	useEffect(() => {
-		if (typed[0][0]) {
-			setCursor();
-		}
+		if (screen.length > 0) setCursor();
 	}, [JSON.stringify(screen)]);
 
 	const determineClass = (windex, lindex) => {
-		const given = typed[windex];
+		const given = typedRef.current[windex];
 		const needed = words.current[windex];
 		if (!given || !given[lindex]) return "letter";
 		else if (!needed[lindex] || given[lindex] !== needed[lindex])
@@ -197,36 +185,57 @@ export default function TypingTest() {
 		return "right";
 	};
 
+	const seeValue = () => {
+		console.log(typed);
+	};
+
 	return (
 		<div className="container">
-			<div className="cursor" />
+			<button onClick={seeValue}>see values</button>
 			<div className="phrase">
+				<div className="cursor" />
 				{screen
 					? screen.map((word, w) => {
+							let index = -1;
 							return (
 								<div key={w} className="word">
-									{word
-										? word.map((letter, l) => {
-												if (letter === "║")
-													return (
-														<div
-															key={l}
-															className="curPos"
-														/>
-													);
+									{word.map((letter, l) => {
+										if (word.includes("║")) {
+											index++;
+											if (letter === "║") {
+												index--;
 												return (
 													<div
 														key={l}
-														className={determineClass(
-															w,
-															l
-														)}
-													>
-														{letter}
-													</div>
+														className="curPos"
+													/>
 												);
-										  })
-										: null}
+											}
+											return (
+												<div
+													key={l}
+													className={determineClass(
+														w,
+														index
+													)}
+												>
+													{letter}
+												</div>
+											);
+										} else {
+											return (
+												<div
+													key={l}
+													className={determineClass(
+														w,
+														l
+													)}
+												>
+													{letter}
+												</div>
+											);
+										}
+									})}
 								</div>
 							);
 					  })

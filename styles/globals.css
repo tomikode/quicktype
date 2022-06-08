@@ -22,7 +22,7 @@ a {
 
 .word {
   display: inline-block;
-  margin-right: 32.02px;
+  margin-right: 32px;
 }
 
 .letter {
@@ -33,7 +33,7 @@ a {
 
 .space {
   display: inline-block;
-  width: 32.02px;
+  width: 32px;
   background-color: red;
 }
 
@@ -69,13 +69,15 @@ a {
 
 .curPos {
   display: inline-block;
+  height: 50px;
 }
 
 .cursor {
   z-index: 1;
-  height: 100px;
+  height: 65px;
+  width: 0px;
   border: 2px solid red;
-  position: absolute;
+  position: relative;
   left: 0px;
   transition: left 0.1s, top 0.1s;
 }
