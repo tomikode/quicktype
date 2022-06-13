@@ -17,45 +17,59 @@ a {
 }
 
 .phrase {
+  padding: 0;
   min-width: 300px;
+  max-width: 700px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  flex-direction: row;
+  height: 126px;
+  align-content: flex-start;
+
+}
+
+.completeWord {
+  display: inline-block;
+  margin: 0px;
+  margin-right: 20px;
+}
+
+.completeLetter {
+  color: green;
+  font-size: 30px;
+  display: inline-block;
 }
 
 .word {
   display: inline-block;
-  margin-right: 32px;
+  margin: 0px;
+  margin-right: 20px;
 }
 
 .letter {
-  border: 1px solid black;
-  font-size: 50px;
+  /* border: 1px solid black; */
+  font-size: 30px;
   display: inline-block;
 }
 
 .space {
   display: inline-block;
-  width: 32px;
+  width: 20px;
   background-color: red;
 }
 
-.wrongspace {
-  border: 1px solid black;
-  border-bottom: 1px solid rgba(255, 0, 0, 0.5);
-  box-sizing: border-box;
-  font-size: 50px;
-  display: inline-block;
-  color: rgba(255, 0, 0, 0.5);
-}
-
 .wrong {
-  border: 1px solid black;
-  font-size: 50px;
+  /* border: 1px solid black; */
+  font-size: 30px;
   color: red;
   display: inline-block;
 }
 
 .right {
-  border: 1px solid black;
-  font-size: 50px;
+  /* border: 1px solid black; */
+  font-size: 30px;
   color: lightgreen;
   display: inline-block;
 }
@@ -64,20 +78,21 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0px 100px;
   height: 100vh;
 }
 
 .curPos {
   display: inline-block;
-  height: 50px;
+  height: 32px;
 }
 
 .cursor {
-  z-index: 1;
-  height: 65px;
-  width: 0px;
-  border: 2px solid red;
-  position: relative;
+  z-index: -1;
+  height: 42px;
+  width: 2px;
+  background-color: red;
+  position: absolute;
   left: 0px;
-  transition: left 0.1s, top 0.1s;
+  transition: left 0.05s, top 0.05s;
 }
