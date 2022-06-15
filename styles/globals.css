@@ -25,9 +25,8 @@ a {
   flex-wrap: wrap;
   overflow: hidden;
   flex-direction: row;
-  height: 126px;
+  height: 117px;
   align-content: flex-start;
-
 }
 
 .completeWord {
@@ -49,26 +48,17 @@ a {
 }
 
 .letter {
-  /* border: 1px solid black; */
   font-size: 30px;
   display: inline-block;
 }
 
-.space {
-  display: inline-block;
-  width: 20px;
-  background-color: red;
-}
-
 .wrong {
-  /* border: 1px solid black; */
   font-size: 30px;
   color: red;
   display: inline-block;
 }
 
 .right {
-  /* border: 1px solid black; */
   font-size: 30px;
   color: lightgreen;
   display: inline-block;
@@ -79,20 +69,23 @@ a {
   justify-content: center;
   align-items: center;
   padding: 0px 100px;
-  height: 100vh;
 }
 
 .curPos {
   display: inline-block;
-  height: 32px;
+  height: 31px;
 }
 
 .cursor {
-  z-index: -1;
+  z-index: 1;
   height: 42px;
   width: 2px;
   background-color: red;
   position: absolute;
-  left: 0px;
   transition: left 0.05s, top 0.05s;
+}
+
+.wordsButton {
+  user-select: none;
+  
 }

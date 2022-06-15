@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import initWords from "../public/words.json";
 
-export default function TypingTest() {
+export default function TypingTest({ endGame, wordNumber }) {
 	const allowedLetters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+[];',./{}:"<>?\\| `;
 
 	//select a random word
@@ -11,9 +11,9 @@ export default function TypingTest() {
 	};
 
 	//select random words, many times and return to screen state
-	const selectWords = () => {
+	const selectWords = (wordNumber) => {
 		let genWords = [];
-		for (let i = 0; i < 25; i++) {
+		for (let i = 0; i < wordNumber; i++) {
 			let newWord = selectWord();
 			genWords.push(newWord);
 		}
@@ -21,7 +21,7 @@ export default function TypingTest() {
 	};
 
 	//variables to track typed letters, whats on screen and original words to type, positions
-	const words = useRef(selectWords());
+	const words = useRef([]);
 	const [screen, setScreen] = useState([]);
 	const screenRef = useRef(screen);
 	const [typed, setTyped] = useState([[]]);
@@ -50,7 +50,7 @@ export default function TypingTest() {
 	};
 
 	//move div cursor forward
-	const forwardCursor = (oldLetter, oldWord, newLetter, newWord) => {
+	const moveCursor = (oldLetter, oldWord, newLetter, newWord) => {
 		let copy = [...screenRef.current];
 		let cursorChar = copy[oldWord - hideRef.current].splice(oldLetter, 1);
 		copy[newWord - hideRef.current].splice(newLetter, 0, cursorChar[0]);
@@ -92,9 +92,9 @@ export default function TypingTest() {
 		} else {
 			if (letterPos.current === 0) {
 				newWord = wordPos.current - 1;
-				if (checkWord(newWord - hideRef.current)) return
+				if (checkWord(newWord - hideRef.current)) return;
 			}
-			forwardCursor(letterPos.current, wordPos.current, 0, newWord);
+			moveCursor(letterPos.current, wordPos.current, 0, newWord);
 		}
 		let clone = [...typedRef.current];
 		clone[newWord] = [];
@@ -105,9 +105,12 @@ export default function TypingTest() {
 
 	//last time reference
 	//array of correct word times, lock words if correct
-	//wpm
 	//accuracy
+	//time of full game
 	//endgame things
+	//restart button
+	//then start sytling
+	//selection for number of words
 
 	//backspace key controller, within word, first letter, nothing typed
 	const backspace = () => {
@@ -117,7 +120,7 @@ export default function TypingTest() {
 			let clone = [...typedRef.current];
 			clone[wordPos.current].pop();
 			setTypedState(clone);
-			forwardCursor(
+			moveCursor(
 				letterPos.current,
 				wordPos.current,
 				letterPos.current - 1,
@@ -130,9 +133,9 @@ export default function TypingTest() {
 			}
 			letterPos.current--;
 		} else {
-			if (checkWord(wordPos.current - hideRef.current - 1)) return
+			if (checkWord(wordPos.current - hideRef.current - 1)) return;
 			let newLetterPos = typedRef.current[wordPos.current - 1].length;
-			forwardCursor(
+			moveCursor(
 				letterPos.current,
 				wordPos.current,
 				newLetterPos,
@@ -145,21 +148,19 @@ export default function TypingTest() {
 
 	//input space, hop to new word, regardless of current word progress
 	const inputSpace = () => {
-		if (wordPos.current + 1 >= words.current.length) return;
+		if (wordPos.current + 1 >= words.current.length) {
+			finishGame();
+			return;
+		}
 		wordPos.current++;
 		if (!typedRef.current[wordPos.current]) {
 			let clone = [...typedRef.current];
 			clone.push([]);
 			setTypedState(clone);
 		}
-		forwardCursor(
-			letterPos.current,
-			wordPos.current - 1,
-			0,
-			wordPos.current
-		);
+		moveCursor(letterPos.current, wordPos.current - 1, 0, wordPos.current);
 		letterPos.current = 0;
-		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime()
+		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime();
 	};
 
 	//input wrong key, make correct letter red, add letters onto end if too many letters for word
@@ -175,7 +176,7 @@ export default function TypingTest() {
 			setScreenState(clone);
 		}
 		letterPos.current++;
-		forwardCursor(
+		moveCursor(
 			letterPos.current - 1,
 			wordPos.current,
 			letterPos.current,
@@ -189,34 +190,61 @@ export default function TypingTest() {
 		let clone = [...typedRef.current];
 		clone[wordPos.current].push(key);
 		setTypedState(clone);
-		forwardCursor(
+		moveCursor(
 			letterPos.current - 1,
 			wordPos.current,
 			letterPos.current,
 			wordPos.current
 		);
+		if (
+			wordPos.current === words.current.length - 1 &&
+			checkWord(wordPos.current - hideRef.current)
+		) {
+			nextTime();
+			finishGame();
+		}
+	};
+
+	const finishGame = () => {
+		const wpm = Math.floor(calculateWPM());
+		if (!wpm) wpm = 0;
+		endGame(wpm);
 	};
 
 	const startTime = () => {
 		const startDate = new Date();
-		prevTime.current = startDate
+		prevTime.current = startDate;
 	};
 
 	const nextTime = () => {
-		const finishTime = new Date()
-		const wpm = 60/((finishTime - prevTime.current)/1000)
-		wordTimes.current.push(wpm)
-		prevTime.current = finishTime
-	}
+		const finishTime = new Date();
+		const wpm = 60 / ((finishTime - prevTime.current) / 1000);
+		wordTimes.current.push(wpm);
+		prevTime.current = finishTime;
+	};
 
 	const calculateWPM = () => {
-		const sum = wordTimes.current.reduce((a, b) => a + b, 0)
-		const averageWPM = sum/wordTimes.current.length
-		console.log(averageWPM)
-	}
+		const sum = wordTimes.current.reduce((a, b) => a + b, 0);
+		return sum / wordTimes.current.length;
+	};
+
+	const resetTest = () => {
+		window.removeEventListener("keydown", keydown);
+		window.removeEventListener("resize", setCursor);
+		words.current = selectWords(wordNumber);
+		prevTime.current = 0;
+		prevLoc.current = 0;
+		wordPos.current = 0;
+		letterPos.current = 0;
+		hideRef.current = 0;
+		setScreenState([[]]);
+		setTypedState([[]]);
+		wordTimes.current = [];
+	};
 
 	//set screen to randomly selected words
 	useEffect(() => {
+		resetTest()
 		let withCursor = words.current.map((word) =>
 			word.map((letter) => letter)
 		);
@@ -224,11 +252,21 @@ export default function TypingTest() {
 		setScreenState(withCursor);
 		window.addEventListener("keydown", keydown);
 		window.addEventListener("resize", setCursor);
-	}, []);
+
+		return () => {
+			resetTest()
+		}
+	}, [wordNumber]);
+
+	useEffect(() => {
+		if (screen.length > 0) {
+			setCursor();
+		}
+	}, [JSON.stringify(screen)]);
 
 	const setCursor = () => {
 		if (!prevLoc.current) setPrevLoc();
-		const curPos = document.getElementsByClassName("curPos")[0];
+		const curPos = document.getElementById("curPos");
 		const pos = curPos.getBoundingClientRect();
 		const cursor = document.getElementsByClassName("cursor")[0];
 		checkDeleteLine(pos);
@@ -262,10 +300,9 @@ export default function TypingTest() {
 				lines.push(top);
 			}
 		}
-		if (pos.top === lines[0] || pos.top === lines[1]) {
-			return;
+		if (lines[2] <= pos.top) {
+			deleteLine(lines[1]);
 		}
-		deleteLine(lines[1]);
 	};
 
 	const setPrevLoc = () => {
@@ -275,27 +312,21 @@ export default function TypingTest() {
 		prevLoc.current = curPos.top;
 	};
 
-	useEffect(() => {
-		if (screen.length > 0) {
-			setCursor();
-		}
-	}, [JSON.stringify(screen)]);
-
 	const checkWord = (w) => {
 		const given = JSON.stringify(typedRef.current[w + hideRef.current]);
 		const needed = JSON.stringify(words.current[w + hideRef.current]);
-		return given === needed
+		return given === needed;
 	};
 
 	const isCompleteWord = (w) => {
 		if (checkWord(w)) {
-			return "completeWord"
+			return "completeWord";
 		}
-		return "word"
-	}
+		return "word";
+	};
 
 	const determineClass = (windex, lindex, wordClass) => {
-		if (wordClass === "completeWord") return "completeLetter"
+		if (wordClass === "completeWord") return "completeLetter";
 		const given = typedRef.current[windex + hideRef.current];
 		const needed = words.current[windex + hideRef.current];
 		if (!given || !given[lindex]) return "letter";
@@ -305,18 +336,18 @@ export default function TypingTest() {
 	};
 
 	const seeValue = () => {
-		calculateWPM()
+		calculateWPM();
 	};
 
 	return (
 		<div className="container">
-			<button onClick={seeValue}>see values</button>
+			{/* <button onClick={seeValue}>see values</button> */}
 			<div className="cursor" />
 			<div className="phrase">
 				{screen
 					? screen.map((word, w) => {
 							let index = -1;
-							const wordClass = isCompleteWord(w)
+							const wordClass = isCompleteWord(w);
 							return (
 								<div key={w} className={wordClass}>
 									{word.map((letter, l) => {
@@ -328,6 +359,7 @@ export default function TypingTest() {
 													<div
 														key={l}
 														className="curPos"
+														id="curPos"
 													/>
 												);
 											}
@@ -336,7 +368,7 @@ export default function TypingTest() {
 													key={l}
 													className={determineClass(
 														w,
-														index, 
+														index,
 														wordClass
 													)}
 												>
@@ -349,7 +381,7 @@ export default function TypingTest() {
 													key={l}
 													className={determineClass(
 														w,
-														l, 
+														l,
 														wordClass
 													)}
 												>
