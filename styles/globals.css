@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html,
 body {
@@ -77,15 +80,10 @@ a {
 }
 
 .cursor {
-  z-index: 1;
-  height: 42px;
-  width: 2px;
-  background-color: red;
-  position: absolute;
   transition: left 0.05s, top 0.05s;
+  @apply z-[1] h-[42px] w-[2px] bg-red-600 absolute
 }
 
 .wordsButton {
-  user-select: none;
-  
+  @apply select-none
 }

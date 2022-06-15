@@ -268,7 +268,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 		if (!prevLoc.current) setPrevLoc();
 		const curPos = document.getElementById("curPos");
 		const pos = curPos.getBoundingClientRect();
-		const cursor = document.getElementsByClassName("cursor")[0];
+		const cursor = document.getElementById("cursor");
 		checkDeleteLine(pos);
 		cursor.style.left = `${pos.left}px`;
 		cursor.style.top = `${pos.top}px`;
@@ -340,9 +340,9 @@ export default function TypingTest({ endGame, wordNumber }) {
 	};
 
 	return (
-		<div className="container">
+		<div className="flex justify-center items-center px-28">
 			{/* <button onClick={seeValue}>see values</button> */}
-			<div className="cursor" />
+			<div className="cursor" id="cursor" />
 			<div className="phrase">
 				{screen
 					? screen.map((word, w) => {
