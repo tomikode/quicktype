@@ -84,16 +84,32 @@ export default function TypingTest({ endGame, wordNumber }) {
 	const ctrlBackspace = () => {
 		if (wordPos.current === hideRef.current && letterPos.current === 0)
 			return;
+
 		let newWord = wordPos.current;
-		if (letterPos.current > words.current[wordPos.current].length) {
+
+		if (letterPos.current > words.current[newWord].length) {
 			let clone = [...screenRef.current];
-			clone[getScreenWord()] = ["║", ...words.current[getScreenWord()]];
+			clone[newWord - hideRef.current] = [
+				"║",
+				...words.current[newWord - hideRef.current],
+			];
+			console.log(clone);
+			setScreenState(clone);
+		} else if (letterPos.current === 0) {
+			newWord--;
+			if (checkWord(newWord - hideRef.current)) {
+				return;
+			}
+			let clone = [...screenRef.current];
+			clone[newWord - hideRef.current] = [
+				"║",
+				...words.current[newWord - hideRef.current],
+			];
+			clone[newWord - hideRef.current + 1] = [
+				...words.current[newWord - hideRef.current + 1],
+			];
 			setScreenState(clone);
 		} else {
-			if (letterPos.current === 0) {
-				newWord = wordPos.current - 1;
-				if (checkWord(newWord - hideRef.current)) return;
-			}
 			moveCursor(letterPos.current, wordPos.current, 0, newWord);
 		}
 		let clone = [...typedRef.current];
@@ -244,7 +260,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 
 	//set screen to randomly selected words
 	useEffect(() => {
-		resetTest()
+		resetTest();
 		let withCursor = words.current.map((word) =>
 			word.map((letter) => letter)
 		);
@@ -254,8 +270,8 @@ export default function TypingTest({ endGame, wordNumber }) {
 		window.addEventListener("resize", setCursor);
 
 		return () => {
-			resetTest()
-		}
+			resetTest();
+		};
 	}, [wordNumber]);
 
 	useEffect(() => {

@@ -20,51 +20,34 @@ a {
 }
 
 .phrase {
-  padding: 0;
-  min-width: 300px;
-  max-width: 700px;
-  margin: auto;
-  display: flex;
-  flex-wrap: wrap;
-  overflow: hidden;
-  flex-direction: row;
-  height: 117px;
-  align-content: flex-start;
+  @apply p-0 min-w-[300px] max-w-[700px] flex flex-wrap m-auto overflow-hidden h-[108px] content-start
 }
 
 .completeWord {
-  display: inline-block;
-  margin: 0px;
-  margin-right: 20px;
+  @apply inline-block m-0 mr-5 
 }
 
 .completeLetter {
-  color: green;
-  font-size: 30px;
-  display: inline-block;
+  @apply text-3xl text-green-700 inline-block
+
 }
 
 .word {
-  display: inline-block;
-  margin: 0px;
-  margin-right: 20px;
+  @apply inline-block m-0 mr-5 
 }
 
 .letter {
-  font-size: 30px;
-  display: inline-block;
+  @apply text-3xl inline-block
+
 }
 
 .wrong {
-  font-size: 30px;
-  color: red;
-  display: inline-block;
+  @apply text-3xl text-red-500 inline-block
+
 }
 
 .right {
-  font-size: 30px;
-  color: lightgreen;
-  display: inline-block;
+  @apply text-3xl text-green-300 inline-block
 }
 
 .container {
@@ -75,13 +58,12 @@ a {
 }
 
 .curPos {
-  display: inline-block;
-  height: 31px;
+  @apply inline-block h-[28px]
 }
 
 .cursor {
   transition: left 0.05s, top 0.05s;
-  @apply z-[1] h-[42px] w-[2px] bg-red-600 absolute
+  @apply z-[1] h-[38px] w-[2px] bg-red-600 absolute
 }
 
 .wordsButton {
