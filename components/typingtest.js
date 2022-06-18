@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import initWords from "../public/words.json";
 
-export default function TypingTest({ endGame, wordNumber }) {
+export default function TypingTest({ endGame, wordNumber, reload }) {
 	const allowedLetters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+[];',./{}:"<>?\\| `;
 
 	//select a random word
@@ -33,6 +33,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 	const prevTime = useRef(0);
 
 	const wordTimes = useRef([]);
+	const wordLengths = useRef([]);
 
 	//ref for screen state used for event listeners to mutate and access state
 	const setScreenState = (data) => {
@@ -89,11 +90,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 
 		if (letterPos.current > words.current[newWord].length) {
 			let clone = [...screenRef.current];
-			clone[newWord - hideRef.current] = [
-				"║",
-				...words.current[newWord - hideRef.current],
-			];
-			console.log(clone);
+			clone[newWord - hideRef.current] = ["║", ...words.current[newWord]];
 			setScreenState(clone);
 		} else if (letterPos.current === 0) {
 			newWord--;
@@ -101,12 +98,9 @@ export default function TypingTest({ endGame, wordNumber }) {
 				return;
 			}
 			let clone = [...screenRef.current];
-			clone[newWord - hideRef.current] = [
-				"║",
-				...words.current[newWord - hideRef.current],
-			];
+			clone[newWord - hideRef.current] = ["║", ...words.current[newWord]];
 			clone[newWord - hideRef.current + 1] = [
-				...words.current[newWord - hideRef.current + 1],
+				...words.current[newWord + 1],
 			];
 			setScreenState(clone);
 		} else {
@@ -119,14 +113,14 @@ export default function TypingTest({ endGame, wordNumber }) {
 		wordPos.current = newWord;
 	};
 
-	//last time reference
-	//array of correct word times, lock words if correct
-	//accuracy
-	//time of full game
-	//endgame things
-	//restart button
-	//then start sytling
-	//selection for number of words
+	//work on styling, centering typing test in the middle
+
+	//styling
+	//menu bar
+	//endgame screen
+	//footer
+	//else?
+	//deploy
 
 	//backspace key controller, within word, first letter, nothing typed
 	const backspace = () => {
@@ -222,9 +216,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 	};
 
 	const finishGame = () => {
-		const wpm = Math.floor(calculateWPM());
-		if (!wpm) wpm = 0;
-		endGame(wpm);
+		endGame(calculateWPM(), calculateLPM());
 	};
 
 	const startTime = () => {
@@ -236,12 +228,25 @@ export default function TypingTest({ endGame, wordNumber }) {
 		const finishTime = new Date();
 		const wpm = 60 / ((finishTime - prevTime.current) / 1000);
 		wordTimes.current.push(wpm);
+		wordLengths.current.push(words.current[wordPos.current - 1].length);
 		prevTime.current = finishTime;
 	};
 
 	const calculateWPM = () => {
+		if (!wordTimes.current.length) return 0;
 		const sum = wordTimes.current.reduce((a, b) => a + b, 0);
 		return sum / wordTimes.current.length;
+	};
+
+	const calculateLPM = () => {
+		if (!wordTimes.current.length) return 0;
+		let lpms = [];
+		for (let i = 0; i < wordTimes.current.length; i++) {
+			let newlpm = wordTimes.current[i] * wordLengths.current[i];
+			lpms.push(newlpm);
+		}
+		const sum = lpms.reduce((a, b) => a + b, 0);
+		return sum / lpms.length;
 	};
 
 	const resetTest = () => {
@@ -256,10 +261,10 @@ export default function TypingTest({ endGame, wordNumber }) {
 		setScreenState([[]]);
 		setTypedState([[]]);
 		wordTimes.current = [];
+		wordLengths.current = []
 	};
 
-	//set screen to randomly selected words
-	useEffect(() => {
+	const prepareTest = () => {
 		resetTest();
 		let withCursor = words.current.map((word) =>
 			word.map((letter) => letter)
@@ -268,11 +273,15 @@ export default function TypingTest({ endGame, wordNumber }) {
 		setScreenState(withCursor);
 		window.addEventListener("keydown", keydown);
 		window.addEventListener("resize", setCursor);
+	};
 
+	//set screen to randomly selected words
+	useEffect(() => {
+		prepareTest();
 		return () => {
 			resetTest();
 		};
-	}, [wordNumber]);
+	}, [reload]);
 
 	useEffect(() => {
 		if (screen.length > 0) {
@@ -356,7 +365,7 @@ export default function TypingTest({ endGame, wordNumber }) {
 	};
 
 	return (
-		<div className="flex justify-center items-center px-28">
+		<div className="container">
 			{/* <button onClick={seeValue}>see values</button> */}
 			<div className="cursor" id="cursor" />
 			<div className="phrase">

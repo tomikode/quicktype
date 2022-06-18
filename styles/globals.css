@@ -28,7 +28,7 @@ a {
 }
 
 .completeLetter {
-  @apply text-3xl text-green-700 inline-block
+  @apply text-3xl text-purple-800 inline-block
 
 }
 
@@ -42,19 +42,16 @@ a {
 }
 
 .wrong {
-  @apply text-3xl text-red-500 inline-block
+  @apply text-3xl text-red-400 inline-block
 
 }
 
 .right {
-  @apply text-3xl text-green-300 inline-block
+  @apply text-3xl text-purple-300 inline-block
 }
 
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0px 100px;
+  @apply flex justify-center items-center px-28
 }
 
 .curPos {
@@ -63,9 +60,9 @@ a {
 
 .cursor {
   transition: left 0.05s, top 0.05s;
-  @apply z-[1] h-[38px] w-[2px] bg-red-600 absolute
+  @apply z-[1] h-[38px] w-[2px] bg-purple-600 absolute
 }
 
 .wordsButton {
-  @apply select-none
+  @apply select-none inline-block right-0 pl-2 hover:text-purple-600 hover:cursor-pointer
 }
