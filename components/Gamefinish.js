@@ -1,10 +1,19 @@
-import React from 'react'
 
 const gamefinish = ({ stats }) => {
+
+  const round = num => {
+    return Math.round(num)
+  }  
+
+  
+
   return (
-    <div>
-        <h1>{stats.wpm}</h1>
-        <h1>{stats.lpm}</h1>
+    <div className='container'>
+      <div>
+        <h1>{round(stats.wpm)}</h1>
+        <h1>{round(stats.lpm)}</h1>
+        <h1>{stats.time}</h1>
+      </div>
     </div>
   )
 }

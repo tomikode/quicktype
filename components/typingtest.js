@@ -31,6 +31,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	const wordPos = useRef(0);
 	const prevLoc = useRef(0);
 	const prevTime = useRef(0);
+	const startTime = useRef(0)
 
 	const wordTimes = useRef([]);
 	const wordLengths = useRef([]);
@@ -62,12 +63,14 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	const keydown = (e) => {
 		if (e.key === "Backspace" && e.ctrlKey) {
 			ctrlBackspace();
+		} else if (e.ctrlKey || e.altKey) {
+			return
 		} else if (e.key === "Backspace") {
 			backspace();
 		} else {
 			if (!allowedLetters.includes(e.key)) return;
 			else {
-				if (!prevTime.current) startTime();
+				if (!prevTime.current) startTiming();
 				if (
 					e.key === words.current[wordPos.current][letterPos.current]
 				) {
@@ -97,7 +100,10 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 			if (checkWord(newWord - hideRef.current)) {
 				return;
 			}
-			let clone = [...screenRef.current];
+			let clone = [...typedRef.current]
+			clone.pop()
+			setTypedState(clone)
+			clone = [...screenRef.current];
 			clone[newWord - hideRef.current] = ["║", ...words.current[newWord]];
 			clone[newWord - hideRef.current + 1] = [
 				...words.current[newWord + 1],
@@ -144,6 +150,9 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 			letterPos.current--;
 		} else {
 			if (checkWord(wordPos.current - hideRef.current - 1)) return;
+			let clone = [...typedRef.current]
+			clone.pop()
+			setTypedState(clone)
 			let newLetterPos = typedRef.current[wordPos.current - 1].length;
 			moveCursor(
 				letterPos.current,
@@ -216,12 +225,12 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	};
 
 	const finishGame = () => {
-		endGame(calculateWPM(), calculateLPM());
+		endGame(calculateWPM(), calculateLPM(), totalTime());
 	};
 
-	const startTime = () => {
-		const startDate = new Date();
-		prevTime.current = startDate;
+	const startTiming = () => {
+		prevTime.current = new Date();
+		startTime.current = prevTime.current
 	};
 
 	const nextTime = () => {
@@ -231,6 +240,11 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		wordLengths.current.push(words.current[wordPos.current - 1].length);
 		prevTime.current = finishTime;
 	};
+
+	const totalTime = () => {
+		const finalTime = new Date()
+		return (finalTime - startTime.current) / 1000
+	}
 
 	const calculateWPM = () => {
 		if (!wordTimes.current.length) return 0;
@@ -277,6 +291,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 
 	//set screen to randomly selected words
 	useEffect(() => {
+		console.log('hello')
 		prepareTest();
 		return () => {
 			resetTest();
@@ -354,14 +369,16 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		if (wordClass === "completeWord") return "completeLetter";
 		const given = typedRef.current[windex + hideRef.current];
 		const needed = words.current[windex + hideRef.current];
-		if (!given || !given[lindex]) return "letter";
+		if (given && !given[lindex] && wordPos.current - hideRef.current !== windex) return "missed";
+		else if (!given || !given[lindex]) return "letter";
 		else if (!needed[lindex] || given[lindex] !== needed[lindex])
 			return "wrong";
 		return "right";
 	};
 
 	const seeValue = () => {
-		calculateWPM();
+		console.log(wordPos.current)
+		console.log(hideRef.current)
 	};
 
 	return (
@@ -371,53 +388,53 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 			<div className="phrase">
 				{screen
 					? screen.map((word, w) => {
-							let index = -1;
-							const wordClass = isCompleteWord(w);
-							return (
-								<div key={w} className={wordClass}>
-									{word.map((letter, l) => {
-										if (word.includes("║")) {
-											index++;
-											if (letter === "║") {
-												index--;
-												return (
-													<div
-														key={l}
-														className="curPos"
-														id="curPos"
-													/>
-												);
-											}
+						let index = -1;
+						const wordClass = isCompleteWord(w);
+						return (
+							<div key={w} className={wordClass}>
+								{word.map((letter, l) => {
+									if (word.includes("║")) {
+										index++;
+										if (letter === "║") {
+											index--;
 											return (
 												<div
 													key={l}
-													className={determineClass(
-														w,
-														index,
-														wordClass
-													)}
-												>
-													{letter}
-												</div>
-											);
-										} else {
-											return (
-												<div
-													key={l}
-													className={determineClass(
-														w,
-														l,
-														wordClass
-													)}
-												>
-													{letter}
-												</div>
+													className="curPos"
+													id="curPos"
+												/>
 											);
 										}
-									})}
-								</div>
-							);
-					  })
+										return (
+											<div
+												key={l}
+												className={determineClass(
+													w,
+													index,
+													wordClass
+												)}
+											>
+												{letter}
+											</div>
+										);
+									} else {
+										return (
+											<div
+												key={l}
+												className={determineClass(
+													w,
+													l,
+													wordClass
+												)}
+											>
+												{letter}
+											</div>
+										);
+									}
+								})}
+							</div>
+						);
+					})
 					: null}
 			</div>
 		</div>
