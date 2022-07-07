@@ -7,7 +7,7 @@ import Footer from "../components/Footer";
 
 
 export default function Home() {
-	const [stats, setStats] = useState({ wpm: -1, lpm: -1 });
+	const [stats, setStats] = useState({ wpm: -1, lpm: -1, time: 0, words: 0  });
 	const [wordNumber, setWordNumber] = useState(20)
 	const [reload, setReload] = useState(1)
 
@@ -18,10 +18,12 @@ export default function Home() {
 	}
 
 	const endGame = (wpm, lpm, time) => {
-		setStats({ wpm, lpm, time })
+		setStats({ wpm, lpm, time, words: wordNumber })
 	}
 
+	//wordtimes set non complete words to 0 and wordLengths at start of test
 	//endgame (time, wpm, lpm, words)
+	//set fixed heights and width for lpm and wpm in endgame
 	//footer
 	//polish header, test, footer
 	//test different screens

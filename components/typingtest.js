@@ -34,7 +34,6 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	const startTime = useRef(0)
 
 	const wordTimes = useRef([]);
-	const wordLengths = useRef([]);
 
 	//ref for screen state used for event listeners to mutate and access state
 	const setScreenState = (data) => {
@@ -225,6 +224,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	};
 
 	const finishGame = () => {
+		console.log(wordTimes.current)
 		endGame(calculateWPM(), calculateLPM(), totalTime());
 	};
 
@@ -236,8 +236,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	const nextTime = () => {
 		const finishTime = new Date();
 		const wpm = 60 / ((finishTime - prevTime.current) / 1000);
-		wordTimes.current.push(wpm);
-		wordLengths.current.push(words.current[wordPos.current - 1].length);
+		wordTimes.current[wordPos.current - 1] = wpm;
 		prevTime.current = finishTime;
 	};
 
@@ -253,10 +252,9 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	};
 
 	const calculateLPM = () => {
-		if (!wordTimes.current.length) return 0;
 		let lpms = [];
 		for (let i = 0; i < wordTimes.current.length; i++) {
-			let newlpm = wordTimes.current[i] * wordLengths.current[i];
+			let newlpm = wordTimes.current[i] * words.current[i].length;
 			lpms.push(newlpm);
 		}
 		const sum = lpms.reduce((a, b) => a + b, 0);
@@ -274,8 +272,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		hideRef.current = 0;
 		setScreenState([[]]);
 		setTypedState([[]]);
-		wordTimes.current = [];
-		wordLengths.current = []
+		wordTimes.current = new Array(words.current.length).fill(0);
 	};
 
 	const prepareTest = () => {
@@ -291,7 +288,6 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 
 	//set screen to randomly selected words
 	useEffect(() => {
-		console.log('hello')
 		prepareTest();
 		return () => {
 			resetTest();
