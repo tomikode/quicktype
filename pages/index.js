@@ -1,7 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import TypingTest from "../components/Typingtest";
 import Gamefinish from "../components/Gamefinish";
-import Wordselection from "../components/Wordselection";
 import Menubar from "../components/Menubar";
 import Footer from "../components/Footer";
 
@@ -21,7 +20,7 @@ export default function Home() {
 		setStats({ wpm, lpm, time, words: wordNumber })
 	}
 
-	//wordtimes set non complete words to 0 and wordLengths at start of test
+	//endgame styling
 	//endgame (time, wpm, lpm, words)
 	//set fixed heights and width for lpm and wpm in endgame
 	//footer

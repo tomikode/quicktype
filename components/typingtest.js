@@ -178,7 +178,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		}
 		moveCursor(letterPos.current, wordPos.current - 1, 0, wordPos.current);
 		letterPos.current = 0;
-		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime();
+		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime(false);
 	};
 
 	//input wrong key, make correct letter red, add letters onto end if too many letters for word
@@ -218,13 +218,12 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 			wordPos.current === words.current.length - 1 &&
 			checkWord(wordPos.current - hideRef.current)
 		) {
-			nextTime();
+			nextTime(true);
 			finishGame();
 		}
 	};
 
 	const finishGame = () => {
-		console.log(wordTimes.current)
 		endGame(calculateWPM(), calculateLPM(), totalTime());
 	};
 
@@ -233,10 +232,11 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		startTime.current = prevTime.current
 	};
 
-	const nextTime = () => {
+	const nextTime = (finish) => {
 		const finishTime = new Date();
 		const wpm = 60 / ((finishTime - prevTime.current) / 1000);
-		wordTimes.current[wordPos.current - 1] = wpm;
+		if (finish) wordTimes.current[wordPos.current] = wpm
+		else wordTimes.current[wordPos.current - 1] = wpm;
 		prevTime.current = finishTime;
 	};
 
