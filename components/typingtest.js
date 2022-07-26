@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import initWords from "../public/words.json";
 
-export default function TypingTest({ endGame, wordNumber, reload }) {
+export default function TypingTest({ endGame, wordNumber, reload, givenWords }) {
 	const allowedLetters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+[];',./{}:"<>?\\| `;
 
 	//select a random word
@@ -33,7 +33,8 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 	const prevTime = useRef(0);
 	const startTime = useRef(0)
 
-	const wordTimes = useRef([]);
+	const wpmNum = useRef(0);
+	const lpmNum = useRef(0)
 
 	//ref for screen state used for event listeners to mutate and access state
 	const setScreenState = (data) => {
@@ -178,7 +179,7 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		}
 		moveCursor(letterPos.current, wordPos.current - 1, 0, wordPos.current);
 		letterPos.current = 0;
-		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime(false);
+		if (checkWord(wordPos.current - hideRef.current - 1)) nextTime();
 	};
 
 	//input wrong key, make correct letter red, add letters onto end if too many letters for word
@@ -218,13 +219,14 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 			wordPos.current === words.current.length - 1 &&
 			checkWord(wordPos.current - hideRef.current)
 		) {
-			nextTime(true);
+			nextTime();
 			finishGame();
 		}
 	};
 
 	const finishGame = () => {
-		endGame(calculateWPM(), calculateLPM(), totalTime());
+		const totalMins = totalTime() / 60
+		endGame(calculateWPM(totalMins), calculateLPM(totalMins), totalMins * 60)
 	};
 
 	const startTiming = () => {
@@ -232,12 +234,9 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		startTime.current = prevTime.current
 	};
 
-	const nextTime = (finish) => {
-		const finishTime = new Date();
-		const wpm = 60 / ((finishTime - prevTime.current) / 1000);
-		if (finish) wordTimes.current[wordPos.current] = wpm
-		else wordTimes.current[wordPos.current - 1] = wpm;
-		prevTime.current = finishTime;
+	const nextTime = () => {
+		wpmNum.current += 1
+		lpmNum.current += words.current[wordPos.current - 1].length
 	};
 
 	const totalTime = () => {
@@ -245,20 +244,12 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		return (finalTime - startTime.current) / 1000
 	}
 
-	const calculateWPM = () => {
-		if (!wordTimes.current.length) return 0;
-		const sum = wordTimes.current.reduce((a, b) => a + b, 0);
-		return sum / wordTimes.current.length;
+	const calculateWPM = (total) => {
+		return wpmNum.current / total
 	};
 
-	const calculateLPM = () => {
-		let lpms = [];
-		for (let i = 0; i < wordTimes.current.length; i++) {
-			let newlpm = wordTimes.current[i] * words.current[i].length;
-			lpms.push(newlpm);
-		}
-		const sum = lpms.reduce((a, b) => a + b, 0);
-		return sum / lpms.length;
+	const calculateLPM = (total) => {
+		return lpmNum.current / total
 	};
 
 	const resetTest = () => {
@@ -272,7 +263,8 @@ export default function TypingTest({ endGame, wordNumber, reload }) {
 		hideRef.current = 0;
 		setScreenState([[]]);
 		setTypedState([[]]);
-		wordTimes.current = new Array(words.current.length).fill(0);
+		wpmNum.current = 0
+		lpmNum.current = 0
 	};
 
 	const prepareTest = () => {

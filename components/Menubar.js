@@ -1,6 +1,13 @@
 import React from "react";
 
-const Menubar = ({ setWordsForGame }) => {
+const Menubar = ({ setWordsForGame, wordNumber }) => {
+
+	const getClass = (num) => {
+		if (num === wordNumber)
+			return "wordsButton text-purple-600"
+		return "wordsButton"
+	}
+
 	return (
 		<div className="flex items-center border-b border-slate-600 pb-4 ">
 			<div className="inline-block">
@@ -11,25 +18,25 @@ const Menubar = ({ setWordsForGame }) => {
 				<div className="text-right select-none">Words</div>
 				<div>
 					<div
-						className="wordsButton"
+						className={getClass(10)}
 						onClick={() => setWordsForGame(10)}
 					>
 						10
 					</div>
 					<div
-						className="wordsButton"
+						className={getClass(20)} 
 						onClick={() => setWordsForGame(20)}
 					>
 						20
 					</div>
 					<div
-						className="wordsButton"
+						className={getClass(50)}
 						onClick={() => setWordsForGame(50)}
 					>
 						50
 					</div>
 					<div
-						className="wordsButton"
+						className={getClass(100)}
 						onClick={() => setWordsForGame(100)}
 					>
 						100

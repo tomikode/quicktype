@@ -20,6 +20,9 @@ export default function Home() {
 		setStats({ wpm, lpm, time, words: wordNumber })
 	}
 
+	//given specific words for test? animations between tests
+	//wordTimes currently simple, maybe change?
+	//icons for endgame
 	//endgame styling
 	//endgame (time, wpm, lpm, words)
 	//set fixed heights and width for lpm and wpm in endgame
@@ -31,10 +34,10 @@ export default function Home() {
 	return (
 		<div className="p-6 h-screen">
 			<div className="h-[10vh]">
-				<Menubar setWordsForGame={setWordsForGame} />
+				<Menubar setWordsForGame={setWordsForGame} wordNumber={wordNumber} />
 			</div>
 			<div className="h-[75vh]">
-				{stats.wpm !== -1 ? <Gamefinish stats={stats} /> :
+				{stats.wpm !== -1 ? <Gamefinish stats={stats} setWordsForGame={setWordsForGame} /> :
 					<TypingTest endGame={endGame} wordNumber={wordNumber} reload={reload} />
 				}
 			</div>
