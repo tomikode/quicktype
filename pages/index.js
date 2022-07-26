@@ -20,12 +20,7 @@ export default function Home() {
 		setStats({ wpm, lpm, time, words: wordNumber })
 	}
 
-	//given specific words for test? animations between tests
-	//wordTimes currently simple, maybe change?
 	//icons for endgame
-	//endgame styling
-	//endgame (time, wpm, lpm, words)
-	//set fixed heights and width for lpm and wpm in endgame
 	//footer
 	//polish header, test, footer
 	//test different screens
@@ -41,7 +36,7 @@ export default function Home() {
 					<TypingTest endGame={endGame} wordNumber={wordNumber} reload={reload} />
 				}
 			</div>
-			<div className="h-[5vh]">
+			<div className="h-[10vh]">
 				<Footer />
 			</div>
 		</div>

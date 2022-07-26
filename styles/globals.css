@@ -20,7 +20,7 @@ a {
 }
 
 .phrase {
-  @apply p-0 min-w-[300px] max-w-[700px] flex flex-wrap m-auto overflow-hidden h-[96px] content-start
+  @apply p-0 min-w-[300px] max-w-[900px] flex flex-wrap m-auto overflow-hidden h-[96px] content-start
 }
 
 .completeWord {
@@ -52,7 +52,7 @@ a {
 }
 
 .container {
-  @apply flex justify-center items-center px-28 h-[100%]
+  @apply flex justify-center items-center px-28 h-[100%] m-auto border-0
 }
 
 .curPos {
