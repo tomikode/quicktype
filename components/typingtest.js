@@ -299,7 +299,7 @@ export default function TypingTest({ endGame, wordNumber, reload, givenWords }) 
 		const cursor = document.getElementById("cursor");
 		checkDeleteLine(pos);
 		cursor.style.left = `${pos.left}px`;
-		cursor.style.top = `${pos.top}px`;
+		cursor.style.top = `${pos.top - 4}px`;
 		setPrevLoc();
 	};
 

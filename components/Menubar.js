@@ -2,22 +2,22 @@ import React from "react";
 
 const Menubar = ({ setWordsForGame, wordNumber }) => {
 	const getClass = (num) => {
-		if (num === wordNumber) return "wordsButton text-purple-600";
+		if (num === wordNumber) return "wordsButton text-purple-500";
 		return "wordsButton";
 	};
 
 	return (
-		<div className="border-b border-slate-600 pb-4">
+		<div className="border-b border-slate-300 pb-4">
 			<div className="flex items-center max-w-[900px] m-auto">
 				<div className="inline-block">
 					<div className="title">
-						<span className="text-purple-600 font-extrabold">
+						<span className="text-purple-500 font-extrabold">
 							Q
 						</span>
 						uick
 					</div>
 					<div className="title">
-						<span className="text-purple-600 font-extrabold pl-3">
+						<span className="text-purple-500 font-extrabold pl-3">
 							T
 						</span>
 						ype

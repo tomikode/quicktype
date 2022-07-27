@@ -31,12 +31,12 @@ export default function Home() {
 			<div className="h-[10vh]">
 				<Menubar setWordsForGame={setWordsForGame} wordNumber={wordNumber} />
 			</div>
-			<div className="h-[75vh]">
+			<div className="h-[81vh]">
 				{stats.wpm !== -1 ? <Gamefinish stats={stats} setWordsForGame={setWordsForGame} /> :
 					<TypingTest endGame={endGame} wordNumber={wordNumber} reload={reload} />
 				}
 			</div>
-			<div className="h-[10vh]">
+			<div className="h-[6vh]">
 				<Footer />
 			</div>
 		</div>

@@ -8,6 +8,7 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Roboto Mono', monospace;
+  @apply bg-gray-800 text-slate-200
 }
 
 a {
@@ -28,7 +29,7 @@ a {
 }
 
 .completeLetter {
-  @apply text-2xl text-purple-800 inline-block
+  @apply text-2xl text-purple-400 inline-block
 }
 
 .word {
@@ -36,7 +37,7 @@ a {
 }
 
 .letter {
-  @apply text-2xl inline-block
+  @apply text-2xl inline-block text-slate-200
 }
 
 .wrong {
@@ -44,11 +45,11 @@ a {
 }
 
 .right {
-  @apply text-2xl text-purple-300 inline-block
+  @apply text-2xl text-purple-400 inline-block
 }
 
 .missed {
-  @apply text-2xl border-b-2 border-red-400 inline-block h-8 box-border
+  @apply text-2xl border-b-2 border-red-400 inline-block h-8 box-border text-slate-200
 }
 
 .container {
@@ -61,7 +62,7 @@ a {
 
 .cursor {
   transition: left 0.05s, top 0.05s;
-  @apply z-[1] h-[28px] w-[2px] bg-purple-600 absolute
+  @apply z-[1] h-[32px] w-[2px] bg-purple-300 absolute
 }
 
 .wordsButton {
