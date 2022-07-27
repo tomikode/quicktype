@@ -6,7 +6,7 @@ export default function TypingTest({ endGame, wordNumber, reload, givenWords }) 
 
 	//select a random word
 	const selectWord = () => {
-		const random = Math.floor(Math.random() * 10);
+		const random = Math.floor(Math.random() * initWords.length);
 		return Array.from(initWords[random]);
 	};
 

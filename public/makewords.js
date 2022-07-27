@@ -1,9 +1,10 @@
 const fs = require("fs");
 
 const ting = () => {
-	const data = fs.readFileSync("commonWords.txt");
-	console.log(data.toString('utf-8'));
-    
+	let data = fs.readFileSync("commonWords.txt");
+	data = data.toString('utf-8')
+    const arr = data.split("\r\n")
+    console.log(JSON.stringify(arr))
 };
 
 ting()
