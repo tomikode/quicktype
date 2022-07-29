@@ -29,7 +29,7 @@ a {
 }
 
 .completeLetter {
-  @apply text-2xl text-purple-400 inline-block
+  @apply text-2xl text-purple-500 inline-block
 }
 
 .word {
@@ -41,11 +41,11 @@ a {
 }
 
 .wrong {
-  @apply text-2xl text-red-400 inline-block
+  @apply text-2xl text-red-500 inline-block
 }
 
 .right {
-  @apply text-2xl text-purple-400 inline-block
+  @apply text-2xl text-purple-500 inline-block
 }
 
 .missed {
