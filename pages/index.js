@@ -29,14 +29,14 @@ export default function Home() {
 	return (
 		<div>
 			<Meta />
-			<div className="p-6 h-screen">
-				<div className="h-[10vh]">
+			<div className="p-6 h-screen relative flex flex-col">
+				<div className="">
 					<Menubar
 						setWordsForGame={setWordsForGame}
 						wordNumber={wordNumber}
 					/>
 				</div>
-				<div className="h-[81vh]">
+				<div className="flex-grow">
 					{stats.wpm !== -1 ? (
 						<Gamefinish
 							stats={stats}
@@ -50,7 +50,7 @@ export default function Home() {
 						/>
 					)}
 				</div>
-				<div className="h-[6vh]">
+				<div className="">
 					<Footer />
 				</div>
 			</div>
